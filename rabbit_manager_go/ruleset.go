@@ -16,7 +16,7 @@ type PublishRule struct {
 }
 
 var ruleset = map[crossdomain_events.EventName]PublishRule{
-	crossdomain_events.ReceiptResultEventName: {
+	crossdomain_events.DefaultEventName: {
 		Exchange: DefaultExchange,
 		Queue:    DefaultQueue,
 	},
