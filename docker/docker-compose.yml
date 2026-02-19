@@ -1,0 +1,155 @@
+version: '3'
+
+networks:
+  backend:
+services:
+  system:
+    build:
+      context: system
+      dockerfile: Dockerfile
+      args:
+        - ALPINE_VERSION=${ALPINE_VERSION}
+    privileged: true
+    container_name: alpine-${SPACE_NAME}
+    networks:
+      - backend
+
+  nginx:
+    image: nginx:${NGINX_VERSION}
+    container_name: nginx-${SPACE_NAME}
+    ports:
+      - "${NGINX_HTTP_PORT}:80"
+      - "${NGINX_HTTPS_PORT}:443"
+    volumes:
+      - ${APP_PATH}:/var/www
+      - ./nginx/conf.d/vhost.conf.template:/etc/nginx/templates/default.conf.template
+      - ./nginx/logs-${SPACE_NAME}:/var/log/nginx/
+      - ./nginx/certs:/etc/nginx/certs
+    depends_on:
+      - php
+      - redis
+    environment:
+      TZ: ${WORKSPACE_TIMEZONE}
+      APP_DOMAIN: ${APP_DOMAIN}
+      SPACE_NAME: ${SPACE_NAME}
+      APP_DIR_NAME: ${APP_DIR_NAME}
+      NGINX_ENVSUBST_TEMPLATE_SUFFIX: .template
+    networks:
+      - backend
+
+  redis:
+    image: redis:${REDIS_VERSION}
+    ports:
+      - "${REDIS_PORT}:6379"
+    container_name: redis-${SPACE_NAME}
+    volumes:
+      - ./redis/data-${SPACE_NAME}:/data
+    environment:
+      TZ: ${WORKSPACE_TIMEZONE}
+    networks:
+      - backend
+
+  mariadb:
+    image: mariadb:${MARIADB_VERSION}
+    container_name: mariadb-${SPACE_NAME}
+    restart: unless-stopped
+    volumes:
+      - ./mariadb/data-${SPACE_NAME}:/var/lib/mysql
+      - ./mariadb/conf.d:/etc/mysql/conf.d
+      - ./mariadb/logs-${SPACE_NAME}:/var/log/mysql/
+      - ./mariadb/dump:/dump
+    ports:
+      - "${MARIADB_PORT}:3306"
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      MARIADB_DATABASE: ${DB_DATABASE}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_USER: ${DB_USER}
+      TZ: ${WORKSPACE_TIMEZONE}
+    networks:
+      - backend
+
+  php:
+    container_name: php-${SPACE_NAME}
+    build:
+      context: php-workspace
+      dockerfile: Dockerfile
+      args:
+        DOCKER_PHP_VERSION: ${PHP_VERSION}
+        TZ: ${WORKSPACE_TIMEZONE}
+    working_dir: /var/www
+    environment:
+      - SPACE_NAME=${SPACE_NAME}
+      - APP_DIR_NAME=${APP_DIR_NAME}
+    volumes:
+      - ./.ssh:/home/www-data/.ssh
+      - ${APP_PATH}:/var/www
+      - ./php-workspace/php.ini:/usr/local/etc/php/php.ini
+      - ./php-workspace/supervisor.d:/etc/supervisor.d
+    ports:
+      - "${PHP_PORT}:9000"
+      - "${WEBSOCKET_PORT}:6001"
+    networks:
+      - backend
+    depends_on:
+      - system
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    extra_hosts:
+      - '${APP_DOMAIN}:${DOCKER_HOST_IP}'
+      - host.docker.internal:host-gateway
+
+  phpmyadmin:
+    depends_on:
+      - mariadb
+    image: phpmyadmin/phpmyadmin:${PMA_VERSION}
+    container_name: phpmyadmin-${SPACE_NAME}
+    restart: always
+    ports:
+      - "${PMA_PORT}:80"
+    networks:
+      - backend
+    environment:
+      PMA_HOST: mariadb-${SPACE_NAME}
+
+  elasticsearch:
+    build:
+      context: elasticsearch
+      args:
+        - ELK_VERSION=${ELK_VERSION}
+    container_name: elasticsearch-${SPACE_NAME}
+    volumes:
+      - ./elasticsearch/data-${SPACE_NAME}:/usr/lib/elasticsearch/data
+    environment:
+      - SPACE_NAME=${SPACE_NAME}
+      - cluster.name=${ELASTICSEARCH_CLUSTER_NAME}
+      - node.name=${ELASTICSEARCH_NODE_NAME}
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=${ELASTICSEARCH_JAVA_OPTS}"
+      - cluster.initial_master_nodes=${ELASTICSEARCH_NODE_NAME}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    ports:
+      - "${ELASTICSEARCH_HOST_HTTP_PORT}:9200"
+      - "${ELASTICSEARCH_HOST_TRANSPORT_PORT}:9300"
+    depends_on:
+      - php
+      - system
+    networks:
+      - backend
+  mailcatcher:
+    image: schickling/mailcatcher
+    container_name: mailcatcher-${SPACE_NAME}
+    ports:
+      - "${MAILCATCHER_WEB_PORT}:1080"   # Web-интерфейс
+      - "${MAILCATCHER_SMTP_PORT}:1025"   # SMTP
+    networks:
+      - backend

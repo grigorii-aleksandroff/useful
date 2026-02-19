@@ -1,0 +1,1 @@
+* * * * * root cd /var/www/b2c && php artisan schedule:run --no-interaction >> /var/www/b2c/storage/logs/cron.log 2>&1

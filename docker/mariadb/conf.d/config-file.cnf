@@ -1,0 +1,17 @@
+[mysqld]
+# Off strict mode
+sql_mode=""
+
+# Slow query settings:
+slow_query_log=1
+slow_query_log_file=/var/log/mysql/slow.log
+# long_query_time=10
+# innodb_lock_wait_timeout=50
+# innodb_flush_log_at_trx_commit=2
+# innodb_flush_log_at_timeout=5
+# innodb_log_file_size=500M
+# innodb_rollback_on_timeout=1
+
+# max_allowed_packet=16M
+# innodb_flush_method=O_DIRECT
+# innodb_buffer_pool_size = 3G
