@@ -51,6 +51,20 @@ Each step must:
 
 ---
 
+## Template Rules
+
+- Always preserve all section headers from `plan.md` template (Steps, Fixes, Critical, Major, Missing, Gaps)
+- Only fill in content — never remove headers even if sections are empty
+
+---
+
+## Iteration Rules
+
+- When re-planning after a FAIL, keep all original steps intact and append fix steps after them
+- Never remove or replace existing steps — only add new ones under the Fixes section
+
+---
+
 ## Past Decisions
 
 <!-- append entries here -->

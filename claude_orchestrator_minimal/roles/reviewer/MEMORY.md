@@ -65,6 +65,15 @@ A step is considered complete only if:
 
 ---
 
+## Template Rules
+
+- Always preserve all section headers from `review.md` template (Verdict, Issues, Critical, Major, Minor, Missing, Gaps)
+- Only fill in content — never remove headers even if sections are empty
+
+---
+
 ## Past Decisions
+
+- Always append new iteration review to `review.md` — never remove or rewrite existing iteration content
 
 <!-- append entries here -->

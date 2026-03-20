@@ -1,7 +1,7 @@
 ---
 name: new-task
 description: Scaffold a new agent task directory in .claude/tasks/. Use when starting a new coding task with the Planner/Coder/Reviewer workflow.
-argument-hint: <task-id>
+argument-hint: <task_id>
 ---
 
 Scaffold a new task directory for the autonomous agent workflow.

@@ -14,7 +14,7 @@ Rules: always read MEMORY.md before acting
 
 ## Task Directory
 
-.claude/tasks/{task-id}/
+.claude/tasks/{task_id}/
 task.md
 plan.md
 review.md
@@ -34,9 +34,9 @@ iteration: integer
 
 ## New Task Handling
 
-- When a new task is created (`/new-task {task-id}`):
-    1. Call the `new-task` skill with `{task-id}`  
-       → scaffolds `.claude/tasks/{task-id}/` with all templates
+- When a new task is created (`/new-task {task_id}`):
+    1. Call the `new-task` skill with `{task_id}`  
+       → scaffolds `.claude/tasks/{task_id}/` with all templates
     2. User edits `task.md` to describe the task
     3. User says `"begin"` to start the agent workflow
 
@@ -85,3 +85,6 @@ planning → coding → review → (loop until PASS) → done
 - Always follow `MEMORY.md`
 - No hidden state
 - Validate consistency between `state.json` and actual progress
+- **On every status transition**, automatically call the `workflow-event-handler` skill with:
+    - Event: `"<previous_status>→<next_status>"`
+    - Task ID: `$TASK_ID` (from `state.json`)

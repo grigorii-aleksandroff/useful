@@ -27,18 +27,6 @@ Main memory file for development. Update after each session (patterns, pitfalls,
 - Do it as the first action before any further analysis or coding
 - Do not proceed to the next step without updating it
 
----
-
-## .claude Rules (CRITICAL)
-
-- Before working in:
-    - `asiatix/`
-    - `admin-panel/`
-    - `admin-panel-2/`  
-      → always read `.claude/CLAUDE.md` inside that directory
-- All `CLAUDE.md` files:
-    - must be stored only inside `.claude/`
-    - must never be created outside `.claude/`
 
 ---
 
