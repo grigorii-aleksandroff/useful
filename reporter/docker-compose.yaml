@@ -1,0 +1,32 @@
+name: reporter
+
+services:
+  go:
+    build:
+      context: .
+      dockerfile: Dockerfile_dev
+    command: air
+    ports:
+      - "40020:40020"
+      - "40021:40021"
+    environment:
+      GOPATH: /go
+      ASIA_CONFIG: ${ASIA_CONFIG}
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - .:/app
+      - ../platform:/platform
+      - ../contracts:/contracts
+      - ${GOPATH:-$HOME/go}/pkg/mod:/go/pkg/mod
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - asia-dev-network
+
+networks:
+  asia-dev-network:
+    external: true

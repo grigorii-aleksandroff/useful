@@ -1,0 +1,4 @@
+[exclude_dir]
+dirs = ["test"]
+[build]
+cmd = "go build -buildvcs=false -o ./tmp/main ."

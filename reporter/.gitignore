@@ -1,0 +1,4 @@
+.env
+/tmp
+test/go.mod
+test/go.sum

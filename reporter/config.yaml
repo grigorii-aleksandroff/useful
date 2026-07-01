@@ -1,0 +1,38 @@
+log:
+  encoding: json
+  level: info
+
+tracer:
+  endpoint: jaeger:6831
+
+database:
+  host: host.docker.internal
+  port: 33061
+  user: dbuser
+  password: dbpass
+  name: reporter
+  max_open_conns: 0
+  max_idle_conns: 2
+  conn_max_lifetime: 1m
+  parseTime: true
+
+services_discovery:
+  reporter: localhost:40021
+
+reporter:
+  healthcheck:
+    port: 40020
+  grpc_server:
+    port: 40021
+  reports:
+    operators:
+      formatters: [xlsx, csv]
+      storage: file
+  storages:
+    file:
+      dir: /tmp/reporter
+  scheduler:
+    interval: 30s
+  worker:
+    interval: 5s
+    batch_size: 5

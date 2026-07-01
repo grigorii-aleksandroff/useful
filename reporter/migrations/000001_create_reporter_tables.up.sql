@@ -1,0 +1,44 @@
+CREATE TABLE IF NOT EXISTS schedules (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    kind VARCHAR(20) NOT NULL,
+    report_code VARCHAR(100) NOT NULL,
+    time_of_day VARCHAR(5) NULL,
+    day_of_week INT NOT NULL DEFAULT 0,
+    day_of_month INT NOT NULL DEFAULT 0,
+    formats JSON NULL,
+    timezone VARCHAR(64) NOT NULL DEFAULT 'UTC',
+    runner_type VARCHAR(32) NOT NULL DEFAULT '',
+    runner_id VARCHAR(64) NOT NULL DEFAULT '',
+    status VARCHAR(16) NOT NULL DEFAULT 'active',
+    params JSON NULL,
+    next_run TIMESTAMP NULL DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_schedules_due (status, next_run),
+    INDEX idx_schedules_runner (runner_type, runner_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS jobs (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    schedule_id BIGINT UNSIGNED NULL DEFAULT NULL,
+    report_code VARCHAR(100) NOT NULL,
+    formats JSON NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'new',
+    error TEXT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_jobs_schedule (schedule_id),
+    INDEX idx_jobs_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS files (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    job_id BIGINT UNSIGNED NOT NULL,
+    report_code VARCHAR(100) NOT NULL,
+    name VARCHAR(255) NOT NULL DEFAULT '',
+    format VARCHAR(20) NOT NULL,
+    storage_code VARCHAR(50) NOT NULL DEFAULT '',
+    file_path VARCHAR(500) NOT NULL DEFAULT '',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_files_job (job_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

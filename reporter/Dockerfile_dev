@@ -1,0 +1,8 @@
+FROM harbor-adm-dc1.itechpsp.com/dockerhub/golang:1.25.1-alpine
+
+RUN apk add --no-cache bash git make
+RUN go install github.com/cosmtrek/air@v1.40.4
+
+WORKDIR /app
+
+CMD ["air"]
